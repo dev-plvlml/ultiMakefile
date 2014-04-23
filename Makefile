@@ -1,22 +1,34 @@
-# Mixed Language Makefile by M4E5TR0 v0.2.2
+# uniMakefile v0.2.3b by Pavel 'M4E5TR0' Matcula
 # 0.2.1: fixed module dependencies for fortran
 # 0.2.2: fixed check-syntax for emacs flymake
+# 0.2.3: fixed unnecessary makedepf90 use
 
-# To be customized.
+# To be customized
 NAME := project
 
-# To be customized: binary, static or shared
+# Can be customized: binary, static or shared
 TARGET_TYPE := binary
 
-# To be customized: gcc, clang or intel
-TOOLCHAIN ?= gcc
-
-# To be customized: release or debug
+# Can be configured: release or debug
 BUILD_TYPE ?= release
 
+# Can be configured: gcc, clang or intel
+TOOLCHAIN ?= gcc
+
+# To be customized for external libraries
 INCLUDE_DIRS := 
 LIB_DIRS := 
 LIBS := 
+
+# GNU Makefile Conventions (7.2.5)
+# To be customized for internal structure
+srcdir := ./src
+
+# To be customized for internal structure
+INCLUDE_DIR := ./include
+BUILD_DIR ?= ./build
+BIN_DIR := ./bin
+LIB_DIR := ./lib
 
 CXXFLAGS += -std=c++11
 
@@ -45,14 +57,6 @@ includedir ?= $(prefix)/include
 bindir ?= $(exec_prefix)/bin
 libdir ?= $(exec_prefix)/lib
 
-# GNU Makefile Conventions (7.2.5)
-srcdir := ./src
-
-INCLUDE_DIR := ./include
-BUILD_DIR ?= ./build
-BIN_DIR := ./bin
-LIB_DIR := ./lib
-
 SRCS.c := $(wildcard $(srcdir)/*.c)
 SRCS.cc := $(wildcard $(srcdir)/*.cc)
 SRCS.cpp := $(wildcard $(srcdir)/*.cpp)
@@ -76,7 +80,10 @@ DEP_SRCS := $(call FILTER_OUT,_flymake,$(DEP_SRCS))
 OBJS := $(addsuffix .o,$(basename $(subst $(srcdir)/,$(BUILD_DIR)/,$(OBJ_SRCS))))
 MODS := $(addsuffix .mod,$(basename $(subst $(srcdir)/,$(BUILD_DIR)/,$(MOD_SRCS))))
 DEPS := $(addsuffix .d,$(basename $(subst $(srcdir)/,$(BUILD_DIR)/,$(DEP_SRCS))))
+
+ifneq ($(MOD_SRCS),)
 DEPS += $(BUILD_DIR)/dependencies
+endif
 
 CPPFLAGS += -I$(INCLUDE_DIR)
 CPPFLAGS += $(foreach DIR,$(INCLUDE_DIRS),-I$(DIR))
@@ -105,7 +112,8 @@ endif
 
 ifeq ($(TOOLCHAIN),clang)
 CC := clang
-CXX := clang++ -std=libc++
+CXX := clang++
+CXXFLAGS += -std=libc++
 FC := gfortran
 LDLIBS += -lc++abi -lgfortran
 endif
