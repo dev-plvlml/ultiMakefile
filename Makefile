@@ -1,11 +1,11 @@
 # uniMakefile v0.2.4 by Pavel 'M4E5TR0' Matcula
-# 0.2.1: fixed module dependencies for fortran
-# 0.2.2: fixed check-syntax for emacs flymake
-# 0.2.3: fixed bug with makedepf90 used w/o args
-# 0.2.4: fixed unnecessary builds on clean target
+# 0.2.1: fixed module dependencies for fortran objects
+# 0.2.2: fixed 'check-syntax' target for emacs flymake
+# 0.2.3: fixed bug with makedepf90 used w/o arguments
+# 0.2.4: fixed unnecessary builds on 'clean' target
 
 # To be customized
-NAME := lections
+NAME := project
 
 # Can be customized: binary, static or shared
 TARGET_TYPE := binary
@@ -23,11 +23,11 @@ LIBS :=
 
 # GNU Makefile Conventions (7.2.5)
 # To be customized for internal structure
-srcdir := ./
+srcdir := ./src
 
 # To be customized for internal structure
-INCLUDE_DIR := ./
-BUILD_DIR ?= ./obj
+INCLUDE_DIR := ./include
+BUILD_DIR ?= ./build
 BIN_DIR := ./bin
 LIB_DIR := ./lib
 
