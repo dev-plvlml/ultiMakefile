@@ -1,10 +1,11 @@
-# uniMakefile v0.2.3b by Pavel 'M4E5TR0' Matcula
+# uniMakefile v0.2.4 by Pavel 'M4E5TR0' Matcula
 # 0.2.1: fixed module dependencies for fortran
 # 0.2.2: fixed check-syntax for emacs flymake
-# 0.2.3: fixed unnecessary makedepf90 use
+# 0.2.3: fixed bug with makedepf90 used w/o args
+# 0.2.4: fixed unnecessary builds on clean target
 
 # To be customized
-NAME := project
+NAME := lections
 
 # Can be customized: binary, static or shared
 TARGET_TYPE := binary
@@ -22,11 +23,11 @@ LIBS :=
 
 # GNU Makefile Conventions (7.2.5)
 # To be customized for internal structure
-srcdir := ./src
+srcdir := ./
 
 # To be customized for internal structure
-INCLUDE_DIR := ./include
-BUILD_DIR ?= ./build
+INCLUDE_DIR := ./
+BUILD_DIR ?= ./obj
 BIN_DIR := ./bin
 LIB_DIR := ./lib
 
@@ -168,14 +169,20 @@ ifeq ($(TARGET_TYPE),shared)
 	$(LINK.cc) -shared -o $@ $^ $(LDLIBS)
 endif
 
-$(BUILD_DIR)/%.o $(BUILD_DIR)/%.d: $(srcdir)/%.c | $(BUILD_DIR)
-	$(COMPILE.c) -o $(BUILD_DIR)/$*.o -MMD -MP -MF $(BUILD_DIR)/$*.d $< # -MT $(BUILD_DIR)/$*.o
+$(BUILD_DIR)/%.o: $(srcdir)/%.c | $(BUILD_DIR)
+	$(COMPILE.c) -o $@ $<
+$(BUILD_DIR)/%.d: $(srcdir)/%.c | $(BUILD_DIR)
+	$(COMPILE.c) -E > /dev/null -MMD -MF $@ $< -MP
 
-$(BUILD_DIR)/%.o $(BUILD_DIR)/%.d: $(srcdir)/%.cc | $(BUILD_DIR)
-	$(COMPILE.cc) -o $(BUILD_DIR)/$*.o -MMD -MP -MF $(BUILD_DIR)/$*.d $< # -MT $(BUILD_DIR)/$*.o
+$(BUILD_DIR)/%.o: $(srcdir)/%.cc | $(BUILD_DIR)
+	$(COMPILE.cc) -o $@ $<
+$(BUILD_DIR)/%.d: $(srcdir)/%.cc | $(BUILD_DIR)
+	$(COMPILE.cc) -E > /dev/null -MMD -MF $@ $< -MP
 
-$(BUILD_DIR)/%.o $(BUILD_DIR)/%.d: $(srcdir)/%.cpp | $(BUILD_DIR)
-	$(COMPILE.cpp) -o $(BUILD_DIR)/$*.o -MMD -MP -MF $(BUILD_DIR)/$*.d $< # -MT $(BUILD_DIR)/$*.o
+$(BUILD_DIR)/%.o: $(srcdir)/%.cpp | $(BUILD_DIR)
+	$(COMPILE.cpp) -o $@ $<
+$(BUILD_DIR)/%.d: $(srcdir)/%.cpp | $(BUILD_DIR)
+	$(COMPILE.cpp) -E > /dev/null -MMD -MF $@ $< -MP
 
 $(BUILD_DIR)/%.o $(BUILD_DIR)/%.mod: $(srcdir)/%.f | $(BUILD_DIR)
 	$(COMPILE.F) -o $(BUILD_DIR)/$*.o $<
@@ -190,7 +197,7 @@ $(BUILD_DIR) $(BIN_DIR) $(LIB_DIR):
 	mkdir -p $@
 
 ifndef SYNTAX_CHECK_MODE
-include $(DEPS)
+-include $(DEPS)
 endif
 
 .PHONY: all-tags
