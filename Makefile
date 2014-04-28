@@ -31,6 +31,9 @@ BUILD_DIR ?= ./build
 BIN_DIR := ./bin
 LIB_DIR := ./lib
 
+CPPFLAGS +=
+
+CFLAGS += 
 CXXFLAGS += -std=c++11
 
 ifeq ($(TOOLCHAIN),intel)
@@ -114,7 +117,7 @@ endif
 ifeq ($(TOOLCHAIN),clang)
 CC := clang
 CXX := clang++
-CXXFLAGS += -std=libc++
+CXXFLAGS += -stdlib=libc++
 FC := gfortran
 LDLIBS += -lc++abi -lgfortran
 endif
@@ -172,17 +175,17 @@ endif
 $(BUILD_DIR)/%.o: $(srcdir)/%.c | $(BUILD_DIR)
 	$(COMPILE.c) -o $@ $<
 $(BUILD_DIR)/%.d: $(srcdir)/%.c | $(BUILD_DIR)
-	$(COMPILE.c) -E > /dev/null -MMD -MF $@ $< -MP
+	-@$(COMPILE.c) -E > /dev/null -MMD -MF $@ $< -MP
 
 $(BUILD_DIR)/%.o: $(srcdir)/%.cc | $(BUILD_DIR)
 	$(COMPILE.cc) -o $@ $<
 $(BUILD_DIR)/%.d: $(srcdir)/%.cc | $(BUILD_DIR)
-	$(COMPILE.cc) -E > /dev/null -MMD -MF $@ $< -MP
+	-@$(COMPILE.cc) -E > /dev/null -MMD -MF $@ $< -MP
 
 $(BUILD_DIR)/%.o: $(srcdir)/%.cpp | $(BUILD_DIR)
 	$(COMPILE.cpp) -o $@ $<
 $(BUILD_DIR)/%.d: $(srcdir)/%.cpp | $(BUILD_DIR)
-	$(COMPILE.cpp) -E > /dev/null -MMD -MF $@ $< -MP
+	-@$(COMPILE.cpp) -E > /dev/null -MMD -MF $@ $< -MP
 
 $(BUILD_DIR)/%.o $(BUILD_DIR)/%.mod: $(srcdir)/%.f | $(BUILD_DIR)
 	$(COMPILE.F) -o $(BUILD_DIR)/$*.o $<
