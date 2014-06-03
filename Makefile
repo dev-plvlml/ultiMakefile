@@ -3,6 +3,7 @@
 # 0.2.2: fixed 'check-syntax' target for emacs flymake
 # 0.2.3: fixed bug with makedepf90 used w/o arguments
 # 0.2.4: fixed unnecessary builds on 'clean' target
+# 0.2.5: fixed object file path in dependency files
 
 # To be customized
 NAME := project
@@ -31,7 +32,7 @@ BUILD_DIR ?= ./build
 BIN_DIR := ./bin
 LIB_DIR := ./lib
 
-CPPFLAGS +=
+CPPFLAGS += 
 
 CFLAGS += 
 CXXFLAGS += -std=c++11
@@ -129,9 +130,9 @@ FFLAGS += -O2
 endif
 
 ifeq ($(BUILD_TYPE),debug)
-CFLAGS += -O0 -g
-CXXFLAGS += -O0 -g
-FFLAGS += -O0 -g
+CFLAGS += -Wall -O0 -g
+CXXFLAGS += -Wall -O0 -g
+FFLAGS += -Wall -O0 -g
 endif
 
 ifeq ($(TARGET_TYPE),shared)
@@ -175,17 +176,17 @@ endif
 $(BUILD_DIR)/%.o: $(srcdir)/%.c | $(BUILD_DIR)
 	$(COMPILE.c) -o $@ $<
 $(BUILD_DIR)/%.d: $(srcdir)/%.c | $(BUILD_DIR)
-	-@$(COMPILE.c) -E > /dev/null -MMD -MF $@ $< -MP
+	-@$(COMPILE.c) -E > /dev/null -MMD -MF $@ $< -MT $(BUILD_DIR)/$*.o -MP
 
 $(BUILD_DIR)/%.o: $(srcdir)/%.cc | $(BUILD_DIR)
 	$(COMPILE.cc) -o $@ $<
 $(BUILD_DIR)/%.d: $(srcdir)/%.cc | $(BUILD_DIR)
-	-@$(COMPILE.cc) -E > /dev/null -MMD -MF $@ $< -MP
+	-@$(COMPILE.cc) -E > /dev/null -MMD -MF $@ $< -MT $(BUILD_DIR)/$*.o -MP
 
 $(BUILD_DIR)/%.o: $(srcdir)/%.cpp | $(BUILD_DIR)
 	$(COMPILE.cpp) -o $@ $<
 $(BUILD_DIR)/%.d: $(srcdir)/%.cpp | $(BUILD_DIR)
-	-@$(COMPILE.cpp) -E > /dev/null -MMD -MF $@ $< -MP
+	-@$(COMPILE.cpp) -E > /dev/null -MMD -MF $@ $< -MT $(BUILD_DIR)/$*.o -MP
 
 $(BUILD_DIR)/%.o $(BUILD_DIR)/%.mod: $(srcdir)/%.f | $(BUILD_DIR)
 	$(COMPILE.F) -o $(BUILD_DIR)/$*.o $<
