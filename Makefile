@@ -1,4 +1,4 @@
-# uniMakefile v0.2.4 by Pavel 'M4E5TR0' Matcula
+# ultiMakefile v0.2.5 by Pavel 'M4E5TR0' Matcula
 # 0.2.1: fixed module dependencies for fortran objects
 # 0.2.2: fixed 'check-syntax' target for emacs flymake
 # 0.2.3: fixed bug with makedepf90 used w/o arguments
