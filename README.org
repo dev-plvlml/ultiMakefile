@@ -1,2 +1,2 @@
 * Description
-The ultimate Makefile for simple single-target projects yet with mixed-language programming capabilities.
+ultiMakefile is the ultimate Makefile for simple single-target projects yet with mixed-language programming capabilities.

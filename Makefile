@@ -1,9 +1,11 @@
-# ultiMakefile v0.2.5 by Pavel 'M4E5TR0' Matcula
+# ultiMakefile v0.2.6 by Pavel 'M4E5TR0' Matcula
 # 0.2.1: fixed module dependencies for fortran objects
-# 0.2.2: fixed 'check-syntax' target for emacs flymake
+# 0.2.2: fixed `check-syntax' target for emacs flymake
 # 0.2.3: fixed bug with makedepf90 used w/o arguments
-# 0.2.4: fixed unnecessary builds on 'clean' target
+# 0.2.4: fixed unnecessary builds on `clean' target
 # 0.2.5: fixed object file path in dependency files
+# 0.2.6: added `install' and `uninstall' targets
+# TODO: proper dependency checking
 
 # To be customized
 NAME := project
@@ -176,17 +178,17 @@ endif
 $(BUILD_DIR)/%.o: $(srcdir)/%.c | $(BUILD_DIR)
 	$(COMPILE.c) -o $@ $<
 $(BUILD_DIR)/%.d: $(srcdir)/%.c | $(BUILD_DIR)
-	-@$(COMPILE.c) -E > /dev/null -MMD -MF $@ $< -MT $(BUILD_DIR)/$*.o -MP
+	@$(COMPILE.c) -MMD -MF $@ $< -MT $(BUILD_DIR)/$*.o -MP
 
 $(BUILD_DIR)/%.o: $(srcdir)/%.cc | $(BUILD_DIR)
 	$(COMPILE.cc) -o $@ $<
 $(BUILD_DIR)/%.d: $(srcdir)/%.cc | $(BUILD_DIR)
-	-@$(COMPILE.cc) -E > /dev/null -MMD -MF $@ $< -MT $(BUILD_DIR)/$*.o -MP
+	@$(COMPILE.cc) -MMD -MF $@ $< -MT $(BUILD_DIR)/$*.o -MP
 
 $(BUILD_DIR)/%.o: $(srcdir)/%.cpp | $(BUILD_DIR)
 	$(COMPILE.cpp) -o $@ $<
 $(BUILD_DIR)/%.d: $(srcdir)/%.cpp | $(BUILD_DIR)
-	-@$(COMPILE.cpp) -E > /dev/null -MMD -MF $@ $< -MT $(BUILD_DIR)/$*.o -MP
+	@$(COMPILE.cpp) -MMD -MF $@ $< -MT $(BUILD_DIR)/$*.o -MP
 
 $(BUILD_DIR)/%.o $(BUILD_DIR)/%.mod: $(srcdir)/%.f | $(BUILD_DIR)
 	$(COMPILE.F) -o $(BUILD_DIR)/$*.o $<
@@ -195,7 +197,7 @@ $(BUILD_DIR)/%.o $(BUILD_DIR)/%.mod: $(srcdir)/%.F | $(BUILD_DIR)
 	$(COMPILE.f) -o $(BUILD_DIR)/$*.o $<
 
 $(BUILD_DIR)/dependencies: $(MOD_SRCS) | $(BUILD_DIR)
-	makedepf90 > $@ $^ -b $(BUILD_DIR) -m "%m.mod"
+	@makedepf90 > $@ $^ -b $(BUILD_DIR) -m "%m.mod"
 
 $(BUILD_DIR) $(BIN_DIR) $(LIB_DIR):
 	mkdir -p $@
@@ -236,18 +238,28 @@ cscope.out: $(OBJ_SRCS)
 # GNU Makefile Conventions (7.2.6)
 .PHONY: install
 install:
+ifeq ($(TARGET_TYPE),binary)
+	$(INSTALL_PROGRAM) $(TARGET) $(DESTDIR)$(bindir)/$(TARGET_NAME)
+else
+	$(INSTALL_DATA) $(TARGET) $(DESTDIR)$(libdir)/$(TARGET_NAME)
+endif
 
 # GNU Makefile Conventions (7.2.6)
 .PHONY: uninstall
 uninstall:
+ifeq ($(TARGET_TYPE),binary)
+	-$(RM) $(DESTDIR)$(bindir)/$(TARGET_NAME)
+else
+	-$(RM) $(DESTDIR)$(libdir)/$(TARGET_NAME)
+endif
 
 # GNU Makefile Conventions (7.2.6)
 .PHONY: clean
 clean:
-	-rm -f $(DEPS)
-	-rm -f $(MODS)
-	-rm -f $(OBJS)
-	-rm -f $(TARGET)
+	-$(RM) $(DEPS)
+	-$(RM) $(MODS)
+	-$(RM) $(OBJS)
+	-$(RM) $(TARGET)
 
 .PHONY: check-syntax
 check-syntax: COMPILE.h := $(COMPILE.cc)
